@@ -8,10 +8,34 @@ TODO :
 - add validation for grades
 - store and load data from file
 - add validation for empty grades
+- add reusable methods for printing messages
 */
 
 class Program
 {
+    public enum MessageType
+    {
+        Success,
+        Error,
+        Warning
+    }
+
+    public static void PrintMessage(string message, MessageType type)
+    {
+        switch (type)
+        {
+            case MessageType.Success:
+                Console.WriteLine($"✅ {message}");
+                break;
+            case MessageType.Error:
+                Console.WriteLine($"❌ {message}");
+                break;
+            case MessageType.Warning:
+                Console.WriteLine($"⚠️ {message}");
+                break;
+        }
+    }
+
     static void Main(string[] args)
     {
         var studentNames = new List<string>();
@@ -50,7 +74,7 @@ class Program
                     string? name = Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(name))
                     {
-                        Console.WriteLine("❌ Name cannot be empty. Please try again.");
+                        PrintMessage("Name cannot be empty. Please try again.", MessageType.Error);
                         continue;
                     }
 
@@ -58,7 +82,7 @@ class Program
 
                     if (!int.TryParse(Console.ReadLine(), out int id) || id <= 0)
                     {
-                        Console.WriteLine("❌ Invalid ID. Please enter a positive number.");
+                        PrintMessage("Invalid ID. Please enter a positive number.", MessageType.Error);
                         continue;
                     }
 
@@ -76,14 +100,14 @@ class Program
                     studentIds.Add(id);
                     studentGrades.Add(grades);
 
-                    Console.WriteLine("✅ Student added successfully!");
+                    PrintMessage("Student added successfully!", MessageType.Success);
 
                     break;
                 case "2":
                     for (int i = 0; i < studentNames.Count; i++)
                     {
                         var avg = studentGrades[i].Count > 0 ? studentGrades[i].Average() : 0;
-                        Console.WriteLine($"✅ Name : {studentNames[i]}, ID: {studentIds[i]}, Grades: {string.Join(", ", studentGrades[i])}, Avg. grade : {avg}");
+                        PrintMessage($"Name : {studentNames[i]}, ID: {studentIds[i]}, Grades: {string.Join(", ", studentGrades[i])}, Avg. grade : {avg}", MessageType.Success);
                     }
                     break;
 
@@ -94,7 +118,7 @@ class Program
 
                     if (string.IsNullOrWhiteSpace(searchInput))
                     {
-                        Console.WriteLine("❌ Incorrect input");
+                        PrintMessage("Incorrect input", MessageType.Error);
                         continue;
                     }
 
@@ -107,7 +131,7 @@ class Program
                             var currentId = studentIds[i];
                             if (currentId == idNumber)
                             {
-                                Console.WriteLine($"✅ Found student : Name: {studentNames[i]}, id: {studentIds[i]}");
+                                PrintMessage($"Found student : Name: {studentNames[i]}, id: {studentIds[i]}", MessageType.Success);
                                 found = true;
                                 break;
                             }
@@ -115,7 +139,7 @@ class Program
 
                         if (!found)
                         {
-                            Console.WriteLine("❌ Student not found.");
+                            PrintMessage("Student not found.", MessageType.Error);
                         }
 
                     }
@@ -128,7 +152,7 @@ class Program
                             var currentName = studentNames[i];
                             if (currentName.Equals(searchInput, StringComparison.CurrentCultureIgnoreCase))
                             {
-                                Console.WriteLine($"✅ Found student : Name: {currentName}, id: {studentIds[i]}");
+                                PrintMessage($"Found student : Name: {currentName}, id: {studentIds[i]}", MessageType.Success);
                                 found = true;
                                 break;
                             }
@@ -136,7 +160,7 @@ class Program
 
                         if (!found)
                         {
-                            Console.WriteLine("❌ Student not found.");
+                            PrintMessage("Student not found.", MessageType.Error);
                         }
                     }
 
@@ -175,7 +199,7 @@ class Program
 
                     if (topIndexes.Count > 3)
                     {
-                        Console.WriteLine("Top students: ");
+                        PrintMessage("Top students: ", MessageType.Success);
 
                         int top3 = Math.Max(3, topIndexes.Count);
 
@@ -183,13 +207,13 @@ class Program
                         {
                             int idx = topIndexes[i];
 
-                            Console.WriteLine($"✅ {studentNames[idx]} (ID: {studentIds[idx]}) - Avg: {averages[idx]:F2}");
+                            PrintMessage($"✅ {studentNames[idx]} (ID: {studentIds[idx]}) - Avg: {averages[idx]:F2}", MessageType.Success);
 
                         }
                     }
                     else
                     {
-                        Console.WriteLine("❌ Not enough students to show top 3.");
+                        PrintMessage("Not enough students to show top 3.", MessageType.Error);
                     }
 
                     break;
@@ -219,21 +243,21 @@ class Program
                                 studentIds.RemoveAt(indexToRemove);
                                 studentGrades.RemoveAt(indexToRemove);
 
-                                Console.WriteLine("✅ Student removed.");
+                                PrintMessage("Student removed.", MessageType.Success);
                             }
                             else
                             {
-                                Console.WriteLine("❌ Student ID not found.");
+                                PrintMessage("Student ID not found.", MessageType.Error);
                             }
                         }
                         else
                         {
-                            Console.WriteLine("❌ Invalid ID. Please enter a number.");
+                            PrintMessage("Invalid ID. Please enter a number.", MessageType.Error);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("❌ You didn't enter anything.");
+                        PrintMessage("You didn't enter anything.", MessageType.Error);
                     }
 
                     break;
@@ -244,10 +268,11 @@ class Program
                     break;
 
                 default:
-                    Console.WriteLine("❌ Invalid option. Please choose again.");
+                    PrintMessage("Invalid option. Please choose again.", MessageType.Error);
                     break;
             }
         }
 
     }
+
 }
