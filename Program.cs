@@ -25,13 +25,13 @@ class Program
         switch (type)
         {
             case MessageType.Success:
-                Console.WriteLine($"✅ {message}");
+                AnsiConsole.MarkupLine($"[green]✅ {message}[/]");
                 break;
             case MessageType.Error:
-                Console.WriteLine($"❌ {message}");
+                AnsiConsole.MarkupLine($"[red]❌ {message}[/]");
                 break;
             case MessageType.Warning:
-                Console.WriteLine($"⚠️ {message}");
+                AnsiConsole.MarkupLine($"[yellow]⚠️ {message}[/]");
                 break;
         }
     }
