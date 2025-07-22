@@ -3,12 +3,10 @@ using Spectre.Console.Cli;
 
 /** 
 TODO : 
-- add validation for existing student id
-- when mistake continue from where it was instead of going back to the main menu
-- add validation for grades
-- store and load data from file
-- add validation for empty grades
-- add reusable methods for printing messages
+    - beautify the with Spectre.Console
+    - add validation for existing student id
+    - store and load data from file
+    - split code into multiple files
 */
 
 class Program
@@ -19,6 +17,7 @@ class Program
         Error,
         Warning
     }
+
 
     public static void PrintMessage(string message, MessageType type)
     {
@@ -70,24 +69,53 @@ class Program
             switch (choice)
             {
                 case "1":
+                    // Name
                     Console.WriteLine("Add student name: ");
                     string? name = Console.ReadLine();
-                    if (string.IsNullOrWhiteSpace(name))
+
+                    while (string.IsNullOrWhiteSpace(name))
                     {
                         PrintMessage("Name cannot be empty. Please try again.", MessageType.Error);
-                        continue;
+                        Console.WriteLine("Add student name: ");
+
+                        name = Console.ReadLine();
                     }
 
-                    Console.WriteLine("Add student ID: ");
-
-                    if (!int.TryParse(Console.ReadLine(), out int id) || id <= 0)
+                    int id;
+                    while (true)
                     {
-                        PrintMessage("Invalid ID. Please enter a positive number.", MessageType.Error);
-                        continue;
+                        Console.Write("Add student ID: ");
+                        string? idInput = Console.ReadLine();
+
+                        if (!int.TryParse(idInput, out id) || id <= 0)
+                        {
+                            PrintMessage("Invalid ID. Please enter a positive number.", MessageType.Error);
+                            continue;
+                        }
+
+                        if (studentIds.Contains(id))
+                        {
+                            PrintMessage("ID already exists. Please try again.", MessageType.Error);
+                            continue;
+                        }
+
+                        break;
                     }
 
+                    // Grades
                     Console.WriteLine("Enter grades separate by space");
-                    string[] gradeStrings = Console.ReadLine()?.Split(" ") ?? [];
+                    string? gradesInput = Console.ReadLine();
+
+                    while (string.IsNullOrEmpty(gradesInput))
+                    {
+                        PrintMessage("Grades cannot be empty. Please try again.", MessageType.Error);
+                        Console.WriteLine("Enter grades separate by space");
+                        gradesInput = Console.ReadLine();
+                    }
+
+                    string[] gradeStrings = gradesInput?.Split(" ") ?? [];
+
+                    Console.WriteLine($"{gradeStrings}");
                     List<int> grades = [];
 
 
