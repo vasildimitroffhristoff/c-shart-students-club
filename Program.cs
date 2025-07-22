@@ -4,7 +4,6 @@ using Spectre.Console.Cli;
 /** 
 TODO : 
     - beautify the with Spectre.Console
-    - add validation for existing student id
     - store and load data from file
     - split code into multiple files
 */
@@ -37,9 +36,11 @@ class Program
 
     static void Main(string[] args)
     {
-        var studentNames = new List<string>();
-        var studentIds = new List<int>();
-        var studentGrades = new List<List<int>>();
+        var data = DataFileHelper.Load();
+        Console.WriteLine(data);
+        var studentNames = data.studentNames;
+        var studentIds = data.studentIds;
+        var studentGrades = data.studentGrades;
 
         bool isRunning = true;
 
@@ -52,6 +53,7 @@ class Program
             "5. Delete student by ID",
             "6. Exit"
         };
+
 
         while (isRunning)
         {
@@ -127,6 +129,12 @@ class Program
                     studentNames.Add(name);
                     studentIds.Add(id);
                     studentGrades.Add(grades);
+
+                    DataFileHelper.Save(new StudentData{
+                        studentNames = studentNames,
+                        studentGrades = studentGrades,
+                        studentIds = studentIds
+                    });
 
                     PrintMessage("Student added successfully!", MessageType.Success);
 
