@@ -18,7 +18,7 @@ class Program
     }
 
 
-    public static void PrintMessage(string message, MessageType type)
+    static void PrintMessage(string message, MessageType type)
     {
         switch (type)
         {
@@ -32,6 +32,128 @@ class Program
                 AnsiConsole.MarkupLine($"[yellow]⚠️ {message}[/]");
                 break;
         }
+    }
+
+    static void AddStudent(List<string> studentNames, List<int> studentIds, List<List<int>> studentGrades)
+    {
+        string? name;
+
+        while (true)
+        {
+            name = PromptForInput("Add student name: ");
+
+            if (name == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                PrintMessage("Name cannot be empty. Please try again.", MessageType.Error);
+                continue;
+            }
+
+            break;
+        }
+
+        int id;
+        while (true)
+        {
+            var idInput = PromptForInput("Add student ID: ");
+
+            if (idInput == null)
+            {
+                return;
+            }
+
+            if (!int.TryParse(idInput, out id) || id <= 0)
+            {
+                PrintMessage("Invalid ID. Please enter a positive number.", MessageType.Error);
+                continue;
+            }
+
+            if (studentIds.Contains(id))
+            {
+                PrintMessage("ID already exists. Please try again.", MessageType.Error);
+                continue;
+            }
+
+            break;
+        }
+
+        List<int> grades = [];
+
+        while (true)
+        {
+            string? gradesInput = PromptForInput("Enter grades separate by space: ");
+
+            if (gradesInput == null)
+            {
+                return;
+            }
+
+            string[] gradeStrings = gradesInput?.Split(" ") ?? [];
+
+
+            bool allValid = true;
+
+            foreach (string grade in gradeStrings)
+            {
+                if (int.TryParse(grade, out int gradeInt) && gradeInt >= 2 && gradeInt <= 6)
+                {
+                    grades.Add(gradeInt);
+                }
+                else
+                {
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (!allValid)
+            {
+                PrintMessage("Invalid grade input. Please enter numbers only (e.g., 4 4 6 5).", MessageType.Error);
+                continue;
+            }
+
+
+            break;
+        }
+
+        studentNames.Add(name);
+        studentIds.Add(id);
+        studentGrades.Add(grades);
+
+        DataFileHelper.Save(new StudentData
+        {
+            studentNames = studentNames,
+            studentGrades = studentGrades,
+            studentIds = studentIds
+        });
+
+        PrintMessage("Student added successfully!", MessageType.Success);
+    }
+
+    static void ListStudents(List<string> studentNames, List<int> studentIds, List<List<int>> studentGrades)
+    {
+        for (int i = 0; i < studentNames.Count; i++)
+        {
+            var avg = studentGrades[i].Count > 0 ? studentGrades[i].Average() : 0;
+            PrintMessage($"Name : {studentNames[i]}, ID: {studentIds[i]}, Grades: {string.Join(", ", studentGrades[i])}, Avg. grade : {avg}", MessageType.Success);
+        }
+    }
+
+    static string? PromptForInput(string prompt)
+    {
+        Console.Write(prompt);
+
+        string? input = Console.ReadLine();
+
+        if (input?.Trim().ToLower() == "exit")
+        {
+            return null;
+        }
+        return input;
     }
 
     static void Main(string[] args)
@@ -71,80 +193,10 @@ class Program
             switch (choice)
             {
                 case "1":
-                    // Name
-                    Console.WriteLine("Add student name: ");
-                    string? name = Console.ReadLine();
-
-                    while (string.IsNullOrWhiteSpace(name))
-                    {
-                        PrintMessage("Name cannot be empty. Please try again.", MessageType.Error);
-                        Console.WriteLine("Add student name: ");
-
-                        name = Console.ReadLine();
-                    }
-
-                    int id;
-                    while (true)
-                    {
-                        Console.Write("Add student ID: ");
-                        string? idInput = Console.ReadLine();
-
-                        if (!int.TryParse(idInput, out id) || id <= 0)
-                        {
-                            PrintMessage("Invalid ID. Please enter a positive number.", MessageType.Error);
-                            continue;
-                        }
-
-                        if (studentIds.Contains(id))
-                        {
-                            PrintMessage("ID already exists. Please try again.", MessageType.Error);
-                            continue;
-                        }
-
-                        break;
-                    }
-
-                    // Grades
-                    Console.WriteLine("Enter grades separate by space");
-                    string? gradesInput = Console.ReadLine();
-
-                    while (string.IsNullOrEmpty(gradesInput))
-                    {
-                        PrintMessage("Grades cannot be empty. Please try again.", MessageType.Error);
-                        Console.WriteLine("Enter grades separate by space");
-                        gradesInput = Console.ReadLine();
-                    }
-
-                    string[] gradeStrings = gradesInput?.Split(" ") ?? [];
-
-                    Console.WriteLine($"{gradeStrings}");
-                    List<int> grades = [];
-
-
-                    foreach (string grade in gradeStrings)
-                    {
-                        grades.Add(int.Parse(grade));
-                    }
-
-                    studentNames.Add(name);
-                    studentIds.Add(id);
-                    studentGrades.Add(grades);
-
-                    DataFileHelper.Save(new StudentData{
-                        studentNames = studentNames,
-                        studentGrades = studentGrades,
-                        studentIds = studentIds
-                    });
-
-                    PrintMessage("Student added successfully!", MessageType.Success);
-
+                    AddStudent(studentNames, studentIds, studentGrades);
                     break;
                 case "2":
-                    for (int i = 0; i < studentNames.Count; i++)
-                    {
-                        var avg = studentGrades[i].Count > 0 ? studentGrades[i].Average() : 0;
-                        PrintMessage($"Name : {studentNames[i]}, ID: {studentIds[i]}, Grades: {string.Join(", ", studentGrades[i])}, Avg. grade : {avg}", MessageType.Success);
-                    }
+                    ListStudents(studentNames, studentIds, studentGrades);
                     break;
 
                 case "3":
